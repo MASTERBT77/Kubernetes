@@ -128,5 +128,8 @@ to pass to base64 use: cat file.crc | base64 -w 0 (1 line)
   kubectl create secret docker-registry private-reg-cred --docker-server=myprivateregistry.com:5000 --docker-username=dock_user --docker-password=dock_password --docker-email=dock_user@myprivateregistry.com
 
   
-
+- What is the Networking Solution used by this cluster?
+  
+  ps aux | grep kubelet  
+ 
   
