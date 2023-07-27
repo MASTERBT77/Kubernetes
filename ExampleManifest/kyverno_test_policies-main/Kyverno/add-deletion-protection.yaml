@@ -1,0 +1,19 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: add-deletion-protection-annotation
+spec:
+  rules:
+  - name: "add-deletion-protection-annotation"
+    match:
+      all:
+      - resources:
+          annotations:
+            kubernetes.io/ingress.class: "alb"
+          kinds:
+          - Ingress
+    mutate:
+      patchStrategicMerge:
+        metadata:
+          annotations:
+            +(alb.ingress.kubernetes.io/load-balancer-attributes): "deletion_protection.enabled=true"

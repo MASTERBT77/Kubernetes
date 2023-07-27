@@ -1,0 +1,21 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-certificate-for-https
+spec:
+  validationFailureAction: Enforce
+  rules:
+  - name: "require-certificate-for-https"
+    match:
+      all:
+      - resources:
+          annotations:
+            kubernetes.io/ingress.class: "alb"
+          kinds:
+          - Ingress
+    validate:
+      message: "A certificate ARN is required in order to deploy ingress"
+      pattern:
+        metadata:
+          annotations:
+            alb.ingress.kubernetes.io/certificate-arn: "?*"

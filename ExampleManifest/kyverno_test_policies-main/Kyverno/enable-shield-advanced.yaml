@@ -1,0 +1,19 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: enable-shield-advanced
+spec:
+  rules:
+  - name: "enable-shield-advanced"
+    match:
+      all:
+      - resources:
+          annotations:
+            kubernetes.io/ingress.class: "alb"
+          kinds:
+          - Ingress
+    mutate:
+      patchStrategicMerge:
+        metadata:
+          annotations:
+            +(alb.ingress.kubernetes.io/shield-advanced-protection): "true"

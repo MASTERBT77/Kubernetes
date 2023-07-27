@@ -1,0 +1,19 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: add-ssl-security-policy-annotation
+spec:
+  rules:
+  - name: "add-ssl-security-policy-annotation"
+    match:
+      all:
+      - resources:
+          annotations:
+            kubernetes.io/ingress.class: "alb"
+          kinds:
+          - Ingress
+    mutate:
+      patchStrategicMerge:
+        metadata:
+          annotations:
+            +(alb.ingress.kubernetes.io/ssl-policy): "ELBSecurityPolicy-TLS13-1-2-2021-06"

@@ -1,0 +1,19 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: add-backend-protocol-https-annotation
+spec:
+  rules:
+  - name: "add-backend-protocol-https-annotation"
+    match:
+      all:
+      - resources:
+          annotations:
+            kubernetes.io/ingress.class: "alb"
+          kinds:
+          - Ingress
+    mutate:
+      patchStrategicMerge:
+        metadata:
+          annotations:
+            +(alb.ingress.kubernetes.io/backend-protocol): "HTTPS"
