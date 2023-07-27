@@ -1,0 +1,46 @@
+#images
+# ls -f | grep image | xargs -L 1 docker load -i
+######## PART 1: LOAD IMAGES ##########
+#load image
+ls -f | grep image | xargs -L 1 docker load -i
+#verify images 
+docker images list
+# create the 16 repositories (1 for each image)
+docker image list --format "table {{.Repository}}" | grep dx | xargs -I "{}" aws ecr create-repository --repository-name "{}"
+#tag of the images (images in the repository)
+-- docker tag <local image name> <account id>.dkr.ecr.<AWS Region>.amazonaws.com/<local image name>
+docker image list --format "table {{.Repository}}:{{.Tag}}" | grep dx | xargs -I "{}" docker tag "{}" 958496651735.dkr.ecr.us-east-1.amazonaws.com/"{}"
+# Verify images and tags 
+docker image list --format "table {{.Repository}}:{{.Tag}}" | grep 958496651735
+# push of the images to the repository
+docker image list --format "table {{.Repository}}:{{.Tag}}" | grep 958496651735 | xargs -I "{}" docker push "{}"
+#Download files from HCL and push to ECR
+
+# https://jleon.app.box.com/s/qdzixqb1vt6igztqdmxcb2hzgg9orsot
+# aws s3 cp file.txt s3://hcl-artifacts-images
+# aws s3 cp s3://hcl-artifacts-images/hcl-dx-kubernetes-v95-CF208.zip . 
+# unzip file
+# ls -f | grep image | xargs -L 1 docker load -i
+# docker image list --format "table {{.Repository}}" | grep dx | xargs -I "{}" aws ecr create-repository --repository-name "{}"
+# docker image list --format "table {{.Repository}}:{{.Tag}}" | grep dx | xargs -I "{}" docker tag "{}" 071646905294.dkr.ecr.us-east-2.amazonaws.com/"{}"
+# docker image list | grep 071646905294
+# aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 071646905294.dkr.ecr.us-east-2.amazonaws.com
+# docker image list --format "table {{.Repository}}:{{.Tag}}" | grep 071646905294 | xargs -I "{}" docker push "{}"
+
+#generate certificate
+
+# openssl req -newkey rsa:4096 --keyout server-key.pem -out server-req.pem
+# kubectl create secret tls dx-tls-cert --cert=my-cert.pem --key=my-key.pem 
+
+
+eksctl create iamserviceaccount \
+  --name ebs-csi-controller-sa \
+  --namespace kube-system \
+  --cluster portal-cluster \
+  --region=us-east-2 \
+  --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
+  --approve \
+  --override-existing-serviceaccounts
+
+
+# git config --global credential.helper 'store --file ~/.credentials.csv'

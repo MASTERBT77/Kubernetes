@@ -1,0 +1,124 @@
+#autocomplete: source <(kubectl completion zsh)
+
+#commands 
+# eksctl create cluster -f ./create-cluster.yaml --profile portal
+# aws sts get-caller-identity
+# aws eks update-kubeconfig --name portal-cluster --region us-east-2
+
+#install istio 
+
+# helm repo add istio https://istio-release.storage.googleapis.com/charts
+# helm repo update
+# kubectl create namespace istio-system
+# helm install istio-base istio/base -n istio-system
+# helm install istiod istio/istiod -n istio-system --wait
+# helm ls -n istio-system
+
+kubectl create namespace istio-ingress
+kubectl label namespace istio-ingress istio-injection=enabled
+helm install istio-ingress istio/gateway -n istio-ingress --wait
+
+#Using Istioctl
+# istioctl install
+#istioctl install --set values.gateways.istio-ingressgateway.type=NodePort
+# kubectl label namespace default istio-inject=enabled
+#unistall istio
+# istioctl x uninstall --purge
+
+#install load balancer controller
+
+# curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.7/docs/install/iam_policy.json
+# aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file://iam_policy.json
+
+# eksctl get cluster --name=portal-cluster --region=us-east-2
+
+<!-- eksctl create iamserviceaccount \
+  --cluster=portal-cluster \
+  --region=us-east-2 \
+  --namespace=kube-system \
+  --name=aws-load-balancer-controller \
+  --role-name AmazonEKSLoadBalancerControllerRole \
+  --attach-policy-arn=arn:aws:iam::071646905294:policy/AWSLoadBalancerControllerIAMPolicy \
+  --approve -->
+
+# helm repo add eks https://aws.github.io/eks-charts
+# helm repo update
+
+<!-- helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+  -n kube-system \
+  --set clusterName=portal-cluster \
+  --set serviceAccount.create=false \
+  --set serviceAccount.name=aws-load-balancer-controller -->
+
+# kubectl get deployment -n kube-system aws-load-balancer-controller
+
+
+
+#install CSI_Driver for EFS 
+
+# curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-efs-csi-driver/master/docs/iam-policy-example.json
+# aws iam create-policy --policy-name AmazonEKS_EFS_CSI_Driver_Policy --policy-document file://iam-policy-example.json
+
+ 
+<!-- eksctl create iamserviceaccount \
+    --cluster portal-cluster \
+    --region=us-east-2 \
+    --namespace kube-system \
+    --name efs-csi-controller-sa \
+    --attach-policy-arn arn:aws:iam::071646905294:policy/AmazonEKS_EFS_CSI_Driver_Policy \
+    --approve \ -->
+
+# helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver/
+# helm repo update
+
+<!-- helm upgrade -i aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver \
+    --namespace kube-system \
+    --set image.repository=602401143452.dkr.ecr.us-east-2.amazonaws.com/eks/aws-efs-csi-driver \
+    --set controller.serviceAccount.create=false \
+    --set controller.serviceAccount.name=efs-csi-controller-sa -->
+
+#creating EFS 
+<!-- vpc_id=$(aws eks describe-cluster \
+    --name portal-cluster \
+    --region=us-east-2 \
+    --query "cluster.resourcesVpcConfig.vpcId" \
+    --output text) -->
+# echo $vpc_id 
+
+<!-- cidr_range=$(aws ec2 describe-vpcs \
+    --vpc-ids $vpc_id \
+    --query "Vpcs[].CidrBlock" \
+    --output text \
+    --region us-east-2) -->
+
+# echo $cidr_range 
+
+<!-- security_group_id=$(aws ec2 create-security-group \
+    --group-name MyEfsSecurityGroup \
+    --description "My EFS security group" \
+    --vpc-id $vpc_id \
+    --region us-east-2 \
+    --output text) -->
+
+<!-- aws ec2 authorize-security-group-ingress \
+    --group-id $security_group_id \
+    --protocol tcp \
+    --port 2049 \
+    --region us-east-2 \
+    --cidr $cidr_range -->
+
+<!-- file_system_id=$(aws efs create-file-system \
+    --region us-east-2 \
+    --performance-mode generalPurpose \
+    --query 'FileSystemId' \
+    --output text) -->
+
+# attach mont point for the efs on the subnets
+# aws efs describe-file-systems --query "FileSystems[*].FileSystemId" --output text --region=us-east-1
+#test app file system
+# curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-efs-csi-driver/master/examples/kubernetes/dynamic_provisioning/specs/storageclass.yaml
+# curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-efs-csi-driver/master/examples/kubernetes/dynamic_provisioning/specs/pod.yaml
+
+
+# install metric server
+#kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
