@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf
+data:
+  nginx.conf: |
+    user  nginx;
+    worker_processes  1;
+
+    events {
+        worker_connections  1024;
+    }
+
+    http {
+
+
+        include       /etc/nginx/redirects-poc-grupo.map;
+        include       /etc/nginx/redirects-poc-banco.map;
+        include       mime.types;
+        default_type  application/octet-stream;
+        sendfile        on;
+        keepalive_timeout  65;
+
+        server {
+            listen 80;
+            server_name poc-sufi.xyz;
+            include /etc/nginx/redirects-poc-sufi.conf;
+            location / {
+                proxy_set_header Host $host;
+                proxy_pass https://dx-haproxy:8081;
+            }
+        }
+        server {
+            listen 80;
+            server_name poc-grupo.xyz;
+            location / {
+                proxy_set_header Host $host;
+                proxy_pass https://dx-haproxy:8081;
+            }
+        }
+    }
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redirects-poc-grupo
+data:
+  redirects-poc-grupo.map: |
+    map $host$request_uri $new_uri_grupo {
+        default "";
+
+        /33 /sufi/creditos;
+
+        poc-grupo.xyz/44 /sufi/creditos/movilidad/;
+
+    }
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redirects-poc-banco
+data:
+  redirects-poc-banco.map: |
+    map $host$request_uri $new_uri_banco {
+        default "";
+
+        poc-banco.xyz/33 /sufi/creditos;
+        poc-banco.xyz/44 /sufi/creditos/movilidad/;
+
+    }
