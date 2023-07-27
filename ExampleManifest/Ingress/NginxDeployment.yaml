@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nginx
+  # namespace: ingress-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-conf-volume
+          mountPath: /etc/nginx/nginx.conf
+          readOnly: true
+          subPath: nginx.conf
+          # redirects.map volumeMounts
+        - name: redirects-example
+          mountPath: /etc/nginx/redirects-example.conf
+          readOnly: true
+          subPath: redirects-poc-sufi.conf
+      volumes:
+      - name: nginx-conf-volume
+        configMap:
+          name: nginx-conf
+          # redirects.map volumes
+      - name: redirects-example
+        configMap:
+          name: redirects-example
+    
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  # namespace: ingress-nginx
+spec:
+  type: ClusterIP
+  selector:
+    app: nginx
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
