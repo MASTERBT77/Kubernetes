@@ -1,0 +1,42 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: default
+  name: alb-nginx-haproxy
+  labels:
+    app: nginx
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80},{"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/load-balancer-name: alb-nginx-haproxy
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip #instance
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:958496651735:certificate/59a128d5-781b-4d0c-af42-5abb18369216,arn:aws:acm:us-east-1:958496651735:certificate/72b23828-24a5-4b97-8f6a-6bbebf743e30,arn:aws:acm:us-east-1:958496651735:certificate/c82cc605-5457-42ad-b3b1-d8edf76c675e
+    alb.ingress.kubernetes.io/group.name: portal5
+    alb.ingress.kubernetes.io/subnets: subnet-0a59fb68fe4242cac, subnet-05f7c0ae4f21aa8ca # subnet-0e789b8d2e51b784d, subnet-09eccdd123eeffa8a
+
+
+spec:
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: ssl-redirect
+            port:
+              name: use-annotation
+
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-service
+            port:
+              number: 80
+
