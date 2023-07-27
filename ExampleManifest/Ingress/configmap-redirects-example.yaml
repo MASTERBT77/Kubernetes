@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redirects-poc-sufi
+data:
+  redirects-poc-sufi.conf: |
+    location /path1/path2 {
+      return 301 /example;
+    }
+
+    
