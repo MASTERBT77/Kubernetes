@@ -130,6 +130,9 @@ to pass to base64 use: cat file.crc | base64 -w 0 (1 line)
   
 - What is the Networking Solution used by this cluster?
   
-  ps aux | grep kubelet  
+  ps aux | grep kubelet 
+
+  cd etc/cni/net.d/
+   
  
   
