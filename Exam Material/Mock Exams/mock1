@@ -1,0 +1,49 @@
+1) Deploy a pod named nginx-pod using the nginx:alpine image.
+    kubectl run nginx-pod --image=nginx:alpine
+2) Deploy a messaging pod using the redis:alpine image with the labels set to tier=msg.
+    - kubectl run messaging --image=redis:alpine
+    - kubectl label pod messaging tier=msg
+3) Create a namespace named apx-x9984574
+    - kubectl create ns apx-x9984574
+4) Get the list of nodes in JSON format and store it in a file at /opt/outputs/nodes-z3444kd9.json
+    - kubectl get nodes -o json /opt/outputs/nodes-z3444kd9.json
+5) Create a service messaging-service to expose the messaging application within the cluster on port 6379
+    - kubectl expose pod messaging --port=6379 --name=messaging-service
+6) Create a deployment named hr-web-app using the image kodekloud/webapp-color with 2 replicas.
+    - kubectl create deployment hr-web-app --image=kodekloud/webapp-color --replicas=2
+7) Create a static pod named static-busybox on the controlplane node that uses the busybox image and the command sleep 1000.
+    
+    - kubectl run --restart=Never --image=busybox static-busybox --dry-run=client -o yaml --command -- sleep 1000 > /etc/kubernetes/manifests/static-busybox.yaml
+    -   apiVersion: v1
+        kind: Pod
+        metadata:
+        name: static-busybox
+        labels:
+        spec:
+        containers:
+        - name: static-busybox
+            image: busybox
+            command: ['sh', '-c', 'sleep 1000']
+8) Create a POD in the finance namespace named temp-bus with the image redis:alpine.
+    - kubectl run temp-bus --image=redis:alpine -n finance
+9) A new application orange is deployed. There is something wrong with it. Identify and fix the issue.
+    -check logs, init pod crash, commands error typo 
+10) Expose the hr-web-app as service hr-web-app-service application on port 30082 on the nodes on the cluster. The web application listens on port 
+    - kubectl expose deployment hr-web-app --port=8080  --type=NodePort --name=hr-web-app-service , then edit and add the port node
+11) Use JSON PATH query to retrieve the osImages of all the nodes and store it in a file /opt/outputs/nodes_os_x43kj56.txt
+    - kubectl get nodes -o=jsonpath="{.items[*].status.nodeInfo.osImage}" > /opt/outputs/nodes_os_x43kj56.txt
+12) Create a Persistent Volume with the given specification:  Volume name: pv-analytics Storage: 100Mi Access mode: ReadWriteMany
+    Host path: /pv/data-analytics
+
+    -   apiVersion: v1
+        kind: PersistentVolume
+        metadata:
+        name: pv-analytics
+        spec:
+        capacity:
+            storage: 100Mi
+        accessModes:
+            - ReadWriteMany
+        persistentVolumeReclaimPolicy: Recycle
+        hostPath:
+            path: /pv/data-analytics
