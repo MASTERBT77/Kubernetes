@@ -133,6 +133,19 @@ to pass to base64 use: cat file.crc | base64 -w 0 (1 line)
   ps aux | grep kubelet 
 
   cd etc/cni/net.d/
-   
+
+- create an ingress to expose service pay service on port 8282
+
+  kubectl create ingress ingress-test -n app-space --rule="/wear=wear-service:8080" --rule="/watch=video-service:8080"
+  
+  use rewrite target using an anottation : nginx.ingress.kubernetes.io/rewrite-target: / 
+
+
+- a node is not responding
+
+  service kubelet status
+  journalctl -u kubelet | unable
+  /var/lib/kubelet ➜  vi config.yaml 
+  service kubelet restart 
  
   
