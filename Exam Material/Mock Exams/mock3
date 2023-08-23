@@ -2,8 +2,8 @@
 Next, create a pod called pvviewer with the image: redis and serviceAccount: pvviewer in the default namespace.
 
     - kubectl create serviceaccount pvviewer
-    - kubectl create role pvviewer-role --verb=list --resource=pv
-    - kubectl create rolebinding pvviewer-role-binding --role=pvviewer-role --serviceaccount=default:pvviewer
+    - kubectl create clusterrole pvviewer-role --verb=list --resource=pv
+    - kubectl create clusterrolebinding pvviewer-role-binding --role=pvviewer-role --serviceaccount=default:pvviewer
 
 apiVersion: v1
 kind: Pod

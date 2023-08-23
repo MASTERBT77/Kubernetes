@@ -148,3 +148,4 @@ Please refer the documentation to see an example. The documentation tab is avail
 8)Create a static pod on node01 called nginx-critical with image nginx and make sure that it is recreated/restarted automatically in case of a failure.
 
     - kubectl run nginx-critical --image=nginx --restart=Always --dry-run=client -o yaml > pod.yaml
+    
