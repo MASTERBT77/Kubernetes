@@ -1,0 +1,106 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Despliegue role EKS
+
+Parameters:
+  pApplicationCode:
+    Type: String
+
+  pProjectName:
+    Type: String
+
+  pEnvironment:
+    Type: String
+
+
+Resources:
+
+  rEKSRole:
+    Type: AWS::IAM::Role
+    Properties:
+      PermissionsBoundary: 
+        Fn::Sub: 
+          - "arn:aws:iam::${ACCOUNT}:policy/Lz-Governance-Boundary"
+          - ACCOUNT:
+              Ref: "AWS::AccountId"
+      RoleName:
+        Fn::Join: [ "-", [ Ref: pApplicationCode, Ref: pProjectName, "eks", Ref: pEnvironment ] ]
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated:
+                #Fn::Sub: '{{resolve:ssm:ProviderARN-${environment}:1}}'
+                Fn::Join:
+                  - ""
+                  - - "arn:aws:iam::"
+                    - Ref: "AWS::AccountId"
+                    - ":saml-provider/AzureAD"
+            Action:
+              - sts:AssumeRoleWithSAML
+            Condition:
+              StringEquals:
+                'SAML:aud':
+                  'https://signin.aws.amazon.com/saml'
+      Path: /
+      MaxSessionDuration: 3600
+      Policies:
+        - PolicyName:
+            Fn::Join: ["-", [Ref: pApplicationCode, Ref: pProjectName, "ekspolicy"]]
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action:
+              - eks:UpdateClusterConfig
+              - eks:DescribeCluster
+              - eks:ListClusters
+              Resource: !Sub "arn:aws:eks:${AWS::Region}:${AWS::AccountId}:cluster/*"
+
+  rRepository:
+    Type: "AWS::ECR::Repository"
+    Properties:
+      RepositoryName: 
+         Fn::Join: [ "-", [ Ref: pApplicationCode, Ref: pProjectName, "ecr", Ref: pEnvironment ] ]
+      RepositoryPolicyText: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Sid: AllowPushPull
+            Effect: Allow
+            Principal: 
+              AWS: 
+                - Fn::Join: [":", ["arn:aws:iam:", Ref: 'AWS::AccountId' ,"root"]]
+                - Fn::GetAtt: [rEKSRole, Arn]
+            Action: 
+              - "ecr:GetDownloadUrlForLayer"
+              - "ecr:BatchGetImage"
+              - "ecr:BatchCheckLayerAvailability"
+              - "ecr:PutImage"
+              - "ecr:InitiateLayerUpload"
+              - "ecr:UploadLayerPart"
+              - "ecr:CompleteLayerUpload"
+      Tags:
+        - Key: Name
+          Value: 
+            Fn::Join: ["-", [Ref: pApplicationCode, Ref: pProjectName, "repository"]]
+        - Key: "bancolombia:application-code"
+          Value: 
+            Ref: pApplicationCode
+        - Key: "bancolombia:project-name"
+          Value: 
+            Ref: pProjectName
+        - Key: "bancolombia:info-finan-conta-legal"
+          Value: "confidencial"
+        - Key: "bia"
+          Value: "si"
+        - Key: "bancolombia:sox-compliance"
+          Value: "si"
+        - Key: "bancolombia:clasificacion-confidencialidad"
+          Value: "confidencial"
+        - Key: "bancolombia:clasificacion-integridad"
+          Value: "impacto moderado"
+        - Key: "bancolombia:clasificacion-disponibilidad"
+          Value: "impacto tolerable"
+        - Key: "bancolombia:business-service"
+          Value: "servicios e integracion"

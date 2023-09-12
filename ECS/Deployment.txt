@@ -1,0 +1,26 @@
+#create 3 repositories (cats, dogs and web)
+aws ecr create-repository \
+--repository-name cats \
+--image-scanning-configuration scanOnPush=true \
+--region ${AWS_REGION}
+
+#build each image
+Docker build -t cats . 
+
+#just once
+aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin xxxxx.dkr.ecr.us-west-2.amazonaws.com
+#for each image
+docker tag cats:latest xxxx.dkr.ecr.us-west-2.amazonaws.com/cats:latest
+docker push xxxxx.dkr.ecr.us-west-2.amazonaws.com/cats:latest
+
+# create ecs cluster in private subnet
+#confi task
+#config service + alb
+#config load test
+
+    - sudo yum -y install siege
+    - dns load balancer http://labecs-308272929.us-west-2.elb.amazonaws.com/
+    - siege -c 200 -i http://labecs-308272929.us-west-2.elb.amazonaws.com/
+
+#create code commit repo and push files, example dogs folder
+

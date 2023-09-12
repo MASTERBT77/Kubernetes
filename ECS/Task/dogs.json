@@ -1,0 +1,44 @@
+{
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "family": "dogsdef",
+    "containerDefinitions": [
+        {
+            "name": "dogs",
+            "image": "xx.dkr.ecr.us-west-2.amazonaws.com/dogs",
+            "portMappings": [
+                {
+                    "name": "dogs-80-tcp",
+                    "containerPort": 80,
+                    "hostPort": 80,
+                    "protocol": "tcp",
+                    "appProtocol": "http"
+                }
+            ],
+            "essential": true,
+            "environment": [],
+            "environmentFiles": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-create-group": "true",
+                    "awslogs-group": "/ecs/dogsdef",
+                    "awslogs-region": "us-west-2",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+        }
+    ],
+    "volumes": [],
+    "networkMode": "awsvpc",
+    "memory": "1024",
+    "cpu": "512",
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    },
+    "executionRoleArn": "arn:aws:iam::xx:role/ecsTaskExecutionRole"
+}
