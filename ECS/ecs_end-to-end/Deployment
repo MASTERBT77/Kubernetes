@@ -1,0 +1,44 @@
+
+part 1:
+aws iam get-role --role-name "AWSServiceRoleForElasticLoadBalancing" || aws iam create-service-linked-role --aws-service-name "elasticloadbalancing.amazonaws.com"
+aws iam get-role --role-name "AWSServiceRoleForECS" || aws iam create-service-linked-role --aws-service-name "ecs.amazonaws.com"
+
+curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/linux_64bit/session-manager-plugin.rpm" -o "session-manager-plugin.rpm"
+sudo yum install -y session-manager-plugin.rpm
+session-manager-plugin
+
+cd ~/environment/ecsdemo-platform/cdk
+pip install -r requirements.txt --user
+cdk bootstrap aws://$AWS_ACCOUNT_ID/$AWS_DEFAULT_REGION
+
+cdk synth
+cdk diff
+cdk deploy --require-approval never
+
+part 2:
+
+pip3 install --user awslogs
+sudo yum install -y siege
+cd ~/environment/ecsdemo-frontend/cdk
+pip install -r requirements.txt --user
+cdk synth
+cdk deploy --require-approval never
+
+part 3: 
+
+cd ~/environment/ecsdemo-nodejs/cdk
+pip install -r requirements.txt --user
+cdk synth
+cdk deploy --require-approval never
+
+
+clean: 
+
+cd ~/environment/ecsdemo-frontend/cdk
+cdk destroy -f
+cd ~/environment/ecsdemo-nodejs/cdk
+cdk destroy -f
+cd ~/environment/ecsdemo-crystal/cdk
+cdk destroy -f
+cd ~/environment/ecsdemo-platform/cdk
+cdk destroy -f
