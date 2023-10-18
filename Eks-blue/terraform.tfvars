@@ -1,0 +1,1 @@
+/Users/brayantorres/Documents/Eks-Terraform-Deployment/Environment/terraform.tfvars
