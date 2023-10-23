@@ -1,0 +1,9 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: efs-encrypted
+provisioner: efs.csi.aws.com
+mountOptions:
+  - tls
+parameters:
+  fileSystemId: fs-0e3f5161698ae494c
