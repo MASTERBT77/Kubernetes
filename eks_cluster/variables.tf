@@ -20,7 +20,17 @@ variable "cluster_version" {
   type        = string
   default     = "1.28"
 }
+variable "irsa_iam_role_path" {
+  description = "IAM role path for IRSA roles"
+  type        = string
+  default     = "/"
+}
 
+variable "irsa_iam_permissions_boundary" {
+  description = "IAM permissions boundary for IRSA roles"
+  type        = string
+  default     = ""
+}
 variable "eks_admin_role_name" {
   type        = string
   description = "Additional IAM role to be admin in the cluster"
@@ -55,4 +65,35 @@ variable "addons_repo_url" {
   type        = string
   description = "Git repo URL for the ArgoCD addons deployment"
   default     = "https://github.com/aws-samples/eks-blueprints-add-ons.git"
+}
+
+#kubeflow variables
+variable "enable_aws_telemetry" {
+  description = "Enable AWS telemetry component"
+  type        = bool
+  default     = true
+}
+
+variable "kf_helm_repo_path" {
+  description = "Full path to the location of the helm repo for KF"
+  type        = string
+  default     = "../eks_cluster/KubeflowComponents"
+}
+
+variable "notebook_enable_culling" {
+  description = "Enable Notebook culling feature. If set to true then the Notebook Controller will scale all Notebooks with Last activity older than the notebook_cull_idle_time to zero"
+  type        = string
+  default     = false
+}
+
+variable "notebook_cull_idle_time" {
+  description = "If a Notebook's LAST_ACTIVITY_ANNOTATION from the current timestamp exceeds this value then the Notebook will be scaled to zero (culled). ENABLE_CULLING must be set to 'true' for this setting to take effect.(minutes)"
+  type        = string
+  default     = 30
+}
+
+variable "notebook_idleness_check_period" {
+  description = "How frequently the controller should poll each Notebook to update its LAST_ACTIVITY_ANNOTATION (minutes)"
+  type        = string
+  default     = 5
 }
