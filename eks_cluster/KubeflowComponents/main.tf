@@ -49,16 +49,16 @@ module "kubeflow_oidc_authservice" {
 module "kubeflow_knative_serving" {
   source = "./modules/knative-serving"
   helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/common/knative-serving"
+    chart = "${var.kf_helm_repo_path}/charts/knative-serving"
   }
   addon_context = var.addon_context
   depends_on    = [module.kubeflow_oidc_authservice]
 }
 
 # module "kubeflow_cluster_local_gateway" {
-#   source = "../../../../iaac/terraform/common/cluster-local-gateway"
+#   source = "./modules/gateway"
 #   helm_config = {
-#     chart = "${var.kf_helm_repo_path}/charts/common/cluster-local-gateway"
+#     chart = "${var.kf_helm_repo_path}/charts/gateway"
 #   }
 #   addon_context = var.addon_context
 #   depends_on    = [module.kubeflow_knative_serving]
