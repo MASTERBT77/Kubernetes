@@ -100,7 +100,7 @@ spec:
           value: 'true'
         - name: ISTIO_META_CLUSTER_ID
           value: Kubernetes
-        image: docker.io/istio/proxyv2:1.16.0
+        image: docker.io/istio/proxyv2:1.19.3
         name: istio-proxy
         ports:
         - containerPort: 15021

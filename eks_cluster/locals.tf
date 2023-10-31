@@ -17,7 +17,7 @@ locals {
   node_group_name = "managed-ondemand"
 
   addon_context = {
-    eks_cluster_id       = module.eks.cluster_id
+    eks_cluster_id       = module.eks.cluster_name
     aws_eks_cluster_endpoint = module.eks.cluster_endpoint
     eks_oidc_provider    = module.eks.oidc_provider
     eks_cluster_version  = var.cluster_version

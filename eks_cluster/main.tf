@@ -174,6 +174,9 @@ module "kubernetes_addons" {
   karpenter_enable_spot_termination_handling = true  
   enable_cert_manager                 = true
   enable_cert_manager_csi_driver      = true
+# enable istio 
+
+
   #enable_kubecost                      = true   #kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 9090:9090                    
 }
 
