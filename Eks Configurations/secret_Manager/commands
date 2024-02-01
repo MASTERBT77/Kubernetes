@@ -1,0 +1,26 @@
+- helm repo add secrets-store-csi-driver https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
+- helm install -n kube-system csi-secrets-store secrets-store-csi-driver/secrets-store-csi-driver 
+- helm repo add aws-secrets-manager https://aws.github.io/secrets-store-csi-driver-provider-aws
+- helm install -n kube-system secrets-provider-aws aws-secrets-manager/secrets-store-csi-driver-provider-aws
+
+- REGION='us-east-1'
+- CLUSTERNAME='argo-test'
+- aws --region "$REGION" secretsmanager  create-secret --name testdriver --secret-string '{"username":"lijuan", "password":"hunter2"}'
+- 'arn:aws:secretsmanager:xxxxxxxxx
+- 
+
+POLICY_ARN=$(aws --region "$REGION" --query Policy.Arn --output text iam create-policy --policy-name nginx-deployment-policy --policy-document '{
+    "Version": "2012-10-17",
+    "Statement": [ {
+        "Effect": "Allow",
+        "Action": ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"],
+        "Resource": ["arn:aws:secretsmanager:us-east-1:xxxxxxxx"]
+    } ]
+}')
+
+- eksctl utils associate-iam-oidc-provider --region="$REGION" --cluster="$CLUSTERNAME" --approve # Only run this once
+- eksctl create iamserviceaccount --name nginx-deployment-sa --region="$REGION" --cluster "$CLUSTERNAME" --attach-policy-arn "$POLICY_ARN" --approve --override-existing-serviceaccounts
+- create secret provider class
+- create the deployment
+- kubectl exec -it $(kubectl get pods | awk '/nginx-deployment/{print $1}' | head -1) cat /mnt/secrets-store/MySecret; echo
+
