@@ -24,3 +24,9 @@ POLICY_ARN=$(aws --region "$REGION" --query Policy.Arn --output text iam create-
 - create the deployment
 - kubectl exec -it $(kubectl get pods | awk '/nginx-deployment/{print $1}' | head -1) cat /mnt/secrets-store/MySecret; echo
 
+rotacion de secretos: 
+
+- helm upgrade -n kube-system csi-secrets-store secrets-store-csi-driver/secrets-store-csi-driver --set enableSecretRotation=true --set rotationPollInterval=60s
+
+#documentation https://github.com/aws/secrets-store-csi-driver-provider-aws
+
